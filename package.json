@@ -1,0 +1,96 @@
+{
+  "name": "deribit-rxjs",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "babel -d lib src --minified --ignore '**/*.test.js'",
+    "prepare": "yarn build",
+    "lint": "eslint src",
+    "test": "jest src --forceExit --silent -i -b",
+    "tdd": "DEBUG=deribit-rxjs:* jest src --watch -i"
+  },
+  "devDependencies": {
+    "@babel/cli": "*",
+    "@babel/core": "*",
+    "@babel/node": "*",
+    "@babel/preset-env": "*",
+    "@babel/register": "*",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "*",
+    "babel-jest": "*",
+    "dotenv": "*",
+    "eslint": "*",
+    "eslint-plugin-jest": "^22.1.2",
+    "jest": "*"
+  },
+  "dependencies": {
+    "debug": "*",
+    "rxjs": "^6.3.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint",
+      "pre-push": "yarn test"
+    }
+  },
+  "eslintConfig": {
+    "env": {
+      "jest/globals": true,
+      "es6": true,
+      "node": true
+    },
+    "plugins": [
+      "jest"
+    ],
+    "extends": [
+      "plugin:jest/recommended",
+      "eslint:recommended"
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "sourceType": "module",
+      "allowImportExportEverywhere": false,
+      "codeFrame": false,
+      "impliedStrict": true
+    },
+    "globals": {
+      "use": true
+    },
+    "rules": {
+      "comma-dangle": [
+        "error",
+        "always-multiline"
+      ],
+      "indent": [
+        "error",
+        2
+      ],
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "never"
+      ]
+    }
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  }
+}
