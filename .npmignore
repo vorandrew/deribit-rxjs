@@ -2,3 +2,4 @@ src
 yarn.lock
 .vscode
 .prettierignore
+.env*
