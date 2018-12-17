@@ -22,6 +22,7 @@
     "dotenv": "*",
     "eslint": "*",
     "eslint-plugin-jest": "^22.1.2",
+    "husky": "^1.2.1",
     "jest": "*"
   },
   "dependencies": {
@@ -92,5 +93,8 @@
         }
       ]
     ]
-  }
+  },
+  "description": "Deribit.com RxJS bindings",
+  "repository": "git@github.com:santacruz123/deribit-rxjs.git",
+  "author": "Andrey Vorobyov <vorandrew@gmail.com>"
 }
