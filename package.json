@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "debug": "*",
-    "deribit-ws-nodejs": "^1.0.0",
+    "deribit-ws-nodejs": "^1.0.1",
     "rxjs": "^6.3.3"
   },
   "husky": {

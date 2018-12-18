@@ -1530,12 +1530,12 @@ delegates@^1.0.0:
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
   integrity sha1-hMbhWbgZBP3KWaDvRM2HDTElD5o=
 
-deribit-ws-nodejs@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/deribit-ws-nodejs/-/deribit-ws-nodejs-1.0.0.tgz#3d7c738f0055ef691d03f2fb9340ad7c145b51a2"
-  integrity sha512-4uoLO+mx6jiTNZ8Rl2zyNuUgUWnQt4Z2r4MfLmXKocrID2fNsc/9QWauELDyq4GcyJtRzZoLjwagr+CP55R6bg==
+deribit-ws-nodejs@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/deribit-ws-nodejs/-/deribit-ws-nodejs-1.0.1.tgz#940c6699c917fba93406a57542331c23c6571d87"
+  integrity sha512-fSoa2nYPVwYW02yarxP5QGvlp9lUx0r2Mgp3guauuZJkQ20C4PleNpvg8Of++DZ8VI0uRPA7LaZ/YUq/YJ7lQQ==
   dependencies:
-    debug "^3.1.0"
+    debug "^4.1.0"
     nodejs-websocket "^1.7.1"
 
 detect-indent@^4.0.0:
