@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "debug": "*",
+    "deribit-ws-nodejs": "^1.0.0",
     "rxjs": "^6.3.3"
   },
   "husky": {
@@ -65,8 +66,11 @@
         "always-multiline"
       ],
       "indent": [
-        "error",
-        2
+        2,
+        2,
+        {
+          "SwitchCase": 1
+        }
       ],
       "linebreak-style": [
         "error",

@@ -23,6 +23,12 @@ import { ohlc, price, orders$, trades$ } from 'deribit-rxjs'
 ```
 
 
+Index
+
+```js
+const index().subscribe(console.log) // 3500
+```
+
 Price
 
 ```js

@@ -1,7 +1,13 @@
 import 'dotenv/config'
 import { price } from './index'
+import ws from './deribit'
 
 describe('price', () => {
+  afterAll(() => {
+    ws.disconnect()
+    ws.close()
+  })
+
   it('one instrument', done => {
     const btc$ = price()
     const s = btc$.subscribe(price => {
