@@ -19,7 +19,7 @@ export default function price(instrument = 'BTC-PERPETUAL') {
       }),
     )
   }).pipe(
-    share(),
     tap(debugNameObj('price', instrument)),
+    share(),
   )
 }

@@ -8,6 +8,6 @@ export default Observable.create(async observer => {
   await ws.connected
   ws.hook('my_trade', order => observer.next(order))
 }).pipe(
-  share(),
   tap(debugName('trade')),
+  share(),
 )

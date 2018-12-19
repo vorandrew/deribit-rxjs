@@ -112,8 +112,8 @@ export default function ohlc(instrument = 'BTC-PERPETUAL') {
         map(mapFn),
       ),
     ).pipe(
-      share(),
       tap(debugNameObj(`ohlc-${period}`.slice(0, -1), instrument)),
+      share(),
     )
   }
 

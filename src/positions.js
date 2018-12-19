@@ -9,6 +9,6 @@ export default concat(
   from(ws.connected.then(() => ws.action('positions'))),
   trades$.pipe(switchMapTo(from(ws.action('positions')))),
 ).pipe(
-  share(),
   tap(debugName('positions')),
+  share(),
 )

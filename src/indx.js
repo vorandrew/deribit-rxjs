@@ -9,7 +9,7 @@ export default function index() {
     await ws.connected
     ws.hook('order_book', 'index', msg => observer.next(msg.btc))
   }).pipe(
-    share(),
     tap(debugNameObj('index', 'XBT')),
+    share(),
   )
 }
