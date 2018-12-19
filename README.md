@@ -49,6 +49,12 @@ Trades
 trades$.subscribe(console.log) // See deribit API
 ```
 
+Positions
+
+```js
+positions$.subscribe(console.log) // See deribit API
+```
+
 Orders
 
 ```js
