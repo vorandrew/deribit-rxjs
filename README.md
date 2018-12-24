@@ -1,4 +1,5 @@
 # deribit-rxjs
+
 Deribit.com RxJS bindings
 
 # Install
@@ -19,9 +20,16 @@ DERIBIT_SECRET=secret_here  // API Secret
 Import
 
 ```js
-import { ohlc, price, orders$, positions$, trades$ } from 'deribit-rxjs'
+import { ohlc, price, orders$, positions$, trades$, deribit } from 'deribit-rxjs'
 ```
 
+Deribit Websocket
+
+```
+deribit.connected
+  .then(() => deribit.action('ping'))
+  .then(pong => console.log(pong))
+```
 
 Index
 
@@ -40,7 +48,10 @@ OHLC
 
 ```js
 const minutes_of_history_prices = 10
-const {s1$, s5$, s15$, m1$, m15$, m30$, h1$, h4$, d1$} = ohlc('BTC-PERPETUAL', minutes_of_history_prices)
+const { s1$, s5$, s15$, m1$, m15$, m30$, h1$, h4$, d1$ } = ohlc(
+  'BTC-PERPETUAL',
+  minutes_of_history_prices,
+)
 s5$.subscribe(console.log) // { t: 1545007679000, o: 333, h: 555, l: 222, c: 4444, v: 12355 }
 ```
 
