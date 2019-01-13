@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "debug": "*",
-    "deribit-ws-nodejs": "^1.0.1",
+    "deribit-ws-nodejs": "^1.0.3",
     "lodash": "^4.17.11",
     "rxjs": "^6.3.3"
   },
