@@ -20,7 +20,7 @@ DERIBIT_SECRET=secret_here  // API Secret
 Import
 
 ```js
-import { ohlc, price, index$, orders$, positions$, trades$, deribit } from 'deribit-rxjs'
+import { ohlc, price, index, orders$, positions$, trades$, deribit } from 'deribit-rxjs'
 ```
 
 Deribit Websocket
@@ -34,7 +34,7 @@ deribit.connected
 Index
 
 ```js
-const index().subscribe(console.log) // 3500
+const index('BTC').subscribe(console.log) // 3500
 ```
 
 Price
