@@ -20,7 +20,7 @@ DERIBIT_SECRET=secret_here  // API Secret
 Import
 
 ```js
-import { ohlc, price, orders$, positions$, trades$, deribit } from 'deribit-rxjs'
+import { ohlc, price, index$, orders$, positions$, trades$, deribit } from 'deribit-rxjs'
 ```
 
 Deribit Websocket
