@@ -23,13 +23,14 @@
     "eslint": "*",
     "eslint-plugin-jest": "^22.1.2",
     "husky": "^1.2.1",
-    "jest": "*"
+    "jest": "*",
+    "nodemon": "^1.18.11"
   },
   "dependencies": {
     "debug": "*",
-    "deribit-ws-nodejs": "^1.0.3",
     "lodash": "^4.17.11",
-    "rxjs": "^6.3.3"
+    "rxjs": "^6.4.0",
+    "ws": "^6.2.1"
   },
   "husky": {
     "hooks": {

@@ -1,17 +1,12 @@
 import 'dotenv/config'
-import { index } from './index'
-import ws from './deribit'
+import { index } from './'
+
+jest.setTimeout(10000)
 
 describe('index', () => {
-  afterAll(() => {
-    ws.disconnect()
-    ws.close()
-  })
-
-  it('index', done => {
-    const index$ = index()
-    const s = index$.subscribe(value => {
-      expect(value).toBeGreaterThan(3000)
+  it('index', async done => {
+    const s = index('eth').subscribe(x => {
+      expect(x).toBeGreaterThan(0)
       s.unsubscribe()
       done()
     })

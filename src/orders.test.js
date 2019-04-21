@@ -1,24 +1,35 @@
 import 'dotenv/config'
 import { orders$ } from './index'
-import ws from './deribit'
+import { msg, authedPromise } from './deribit'
 
-describe('orders$', () => {
-  it('orders$', async done => {
-    const s = orders$.subscribe(trade => {
-      expect(trade).toHaveProperty('filledQuantity', 1)
-      expect(trade).toHaveProperty('state', 'filled')
-      expect(trade).toHaveProperty('avgPrice')
+jest.setTimeout(10000)
+
+describe('orders', () => {
+  it('orders', async done => {
+    const s = orders$.subscribe(orders => {
+      expect(orders.length).toBeGreaterThan(0)
+      const one = orders.filter(one => one.instrument_name === 'BTC-PERPETUAL')[0]
+      expect(one).toHaveProperty('amount', 10)
+      expect(one).toHaveProperty('filled_amount')
+      expect(one).toHaveProperty('direction')
+      expect(one).toHaveProperty('average_price')
+      expect(one).toHaveProperty('order_state')
+      expect(one).toHaveProperty('order_type')
+      expect(one).toHaveProperty('post_only')
       s.unsubscribe()
       done()
     })
 
-    await ws.connected
-
-    await ws.action('buy', {
-      instrument: 'BTC-PERPETUAL',
-      quantity: 1,
-      type: 'market',
-      label: '1123123',
-    })
+    await authedPromise.then(() =>
+      msg({
+        method: 'private/buy',
+        params: {
+          instrument_name: 'BTC-PERPETUAL',
+          amount: 10,
+          price: 2000,
+          type: 'limit',
+        },
+      }),
+    )
   })
 })
