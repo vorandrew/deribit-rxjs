@@ -4,13 +4,13 @@ import WS from 'ws'
 
 import { Subject } from 'rxjs'
 
-import { debugName } from './helpers'
+import { debugName, debugRawName } from './helpers'
 
 export const read$ = new Subject()
 export const write$ = new Subject()
 
 export const ws = new WS('wss://www.deribit.com/ws/api/v2')
-const openPromise = new Promise(r => ws.on('open', r))
+export const openPromise = new Promise(r => ws.on('open', r))
 
 let n = new Date().getTime() * 1000
 let access_token
@@ -131,4 +131,4 @@ msg({
   params: { interval: 30 },
 })
 
-read$.subscribe(debugName('read'))
+read$.subscribe(debugRawName('read'))
