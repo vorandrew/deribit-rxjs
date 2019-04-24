@@ -1,13 +1,14 @@
-import ws from './deribit'
-import { Observable } from 'rxjs'
-import { share, tap } from 'rxjs/operators'
+import { read$ } from './deribit'
+import { from } from 'rxjs'
+import { share, tap, filter, mergeMap } from 'rxjs/operators'
 
 import { debugName } from './helpers'
 
-export default Observable.create(async observer => {
-  await ws.connected
-  ws.hook('my_trade', order => observer.next(order))
-}).pipe(
-  tap(debugName('trade')),
+export default read$.pipe(
+  filter(
+    m => m.method === 'subscription' && m.params.channel === 'user.trades.any.any.raw',
+  ),
+  mergeMap(o => from(o.params.data)),
+  tap(debugName('trades')),
   share(),
 )

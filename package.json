@@ -8,7 +8,8 @@
     "prepare": "yarn build",
     "lint": "eslint src",
     "test": "jest src --forceExit --silent -i -b",
-    "tdd": "DEBUG=deribit-rxjs:* jest src --watch -i"
+    "tdd": "DEBUG=deribit-rxjs:* jest src --watch -i",
+    "dev": "DEBUG=deribit-rxjs:* nodemon --exec babel-node src/dev.js"
   },
   "devDependencies": {
     "@babel/cli": "*",
@@ -23,13 +24,14 @@
     "eslint": "*",
     "eslint-plugin-jest": "^22.1.2",
     "husky": "^1.2.1",
-    "jest": "*"
+    "jest": "*",
+    "nodemon": "^1.18.11"
   },
   "dependencies": {
     "debug": "*",
-    "deribit-ws-nodejs": "^1.0.3",
     "lodash": "^4.17.11",
-    "rxjs": "^6.3.3"
+    "rxjs": "^6.4.0",
+    "ws": "^6.2.1"
   },
   "husky": {
     "hooks": {

@@ -1,25 +1,27 @@
 import 'dotenv/config'
 import { trades$ } from './index'
-import ws from './deribit'
+import { msg, authedPromise } from './deribit'
 
 describe('trades$', () => {
   it('trades$', async done => {
     const s = trades$.subscribe(trade => {
-      expect(trade).toHaveProperty('instrument', 'BTC-PERPETUAL')
-      expect(trade).toHaveProperty('quantity', 1)
-      expect(trade).toHaveProperty('direction', 'buy')
-      expect(trade).toHaveProperty('tradeId')
+      expect(trade).toHaveProperty('instrument_name', 'BTC-PERPETUAL')
+      expect(trade).toHaveProperty('amount', 10)
+      expect(trade).toHaveProperty('direction', 'sell')
+      expect(trade).toHaveProperty('trade_id')
       s.unsubscribe()
       done()
     })
 
-    await ws.connected
-
-    await ws.action('buy', {
-      instrument: 'BTC-PERPETUAL',
-      quantity: 1,
-      type: 'market',
-      label: '1123123',
-    })
+    await authedPromise.then(() =>
+      msg({
+        method: 'private/sell',
+        params: {
+          instrument_name: 'BTC-PERPETUAL',
+          amount: 10,
+          type: 'market',
+        },
+      }),
+    )
   })
 })
