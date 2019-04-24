@@ -27,13 +27,13 @@ export default merge(
   ),
 ).pipe(
   scan((orders, order) => {
-    return [...orders.filter(o => o.order_id !== order[0].id), ...order]
+    return [...orders.filter(o => o.order_id != order[0].order_id), ...order]
   }, []),
   map(orders =>
     orders.filter(
       o =>
         !['filled', 'rejected', 'cancelled'].includes(o.order_state) ||
-        o.last_update_timestamp >= new Date().getTime() * 1000 * 10,
+        o.last_update_timestamp >= new Date().getTime() - 5000,
     ),
   ),
   tap(debugName('orders')),
