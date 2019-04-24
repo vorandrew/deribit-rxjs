@@ -8,7 +8,8 @@
     "prepare": "yarn build",
     "lint": "eslint src",
     "test": "jest src --forceExit --silent -i -b",
-    "tdd": "DEBUG=deribit-rxjs:* jest src --watch -i"
+    "tdd": "DEBUG=deribit-rxjs:* jest src --watch -i",
+    "dev": "DEBUG=deribit-rxjs:* nodemon --exec babel-node src/dev.js"
   },
   "devDependencies": {
     "@babel/cli": "*",

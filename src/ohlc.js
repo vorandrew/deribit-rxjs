@@ -1,23 +1,23 @@
-import ws from './deribit'
+import { msg, read$ } from './deribit'
 
-import { Observable, concat, merge } from 'rxjs'
+import { from } from 'rxjs'
 import {
-  buffer,
   map,
-  bufferCount,
   share,
   tap,
-  toArray,
-  groupBy,
+  filter,
   mergeMap,
-  takeWhile,
-  skipWhile,
+  buffer,
+  skip,
+  distinctUntilChanged,
 } from 'rxjs/operators'
 
-import { debugNameObj } from './helpers'
+import { debugName } from './helpers'
 import sec$ from './sec'
 import periods from './periods'
-import history from './history'
+// import history from './history'
+
+const boundary = seconds => ts => Math.floor(ts / seconds / 1000) * 1000 * seconds
 
 const s1ReduceFn = trades => {
   if (trades.length === 0) {
@@ -32,12 +32,12 @@ const s1ReduceFn = trades => {
   }
 
   return {
-    t: Math.floor(trades[0].ts / 1000) * 1000,
+    t: Math.floor(trades[0].timestamp / 1000) * 1000,
     o: trades[0].price,
     h: Math.max(...trades.map(one => one.price)),
     l: Math.min(...trades.map(one => one.price)),
     c: trades[trades.length - 1].price,
-    v: trades.reduce((sum, trade) => sum + trade.quantity, 0),
+    v: trades.reduce((sum, trade) => sum + trade.amount, 0),
   }
 }
 
@@ -67,81 +67,49 @@ const ohlcsReduceFn = (ohlcs, seconds) => {
   }
 }
 
-export default function ohlc(instrument = 'BTC-PERPETUAL', minutes = 15) {
-  const history$ = history(instrument, minutes)
+export default function ohlc(instrument = 'BTC-PERPETUAL') {
+  msg({
+    method: 'public/subscribe',
+    params: { channels: [`trades.${instrument}.100ms`] },
+  })
 
-  const live$ = Observable.create(async observer => {
-    await ws.connected
-    ws.hook('trade', instrument, trade =>
-      observer.next({
-        price: trade.price,
-        quantity: trade.quantity,
-        ts: trade.timeStamp,
-      }),
+  // const history$ = history(instrument, minutes).pipe(
+  //   groupBy(trade => Math.floor(trade.timestamp / 1000) * 1000),
+  //   mergeMap(group$ => group$.pipe(toArray())),
+  //   map(s1ReduceFn),
+  // )
+
+  const s1$ = read$.pipe(
+    filter(
+      m =>
+        m.method === 'subscription' && m.params.channel === `trades.${instrument}.100ms`,
+    ),
+    mergeMap(o => from(o.params.data)),
+    map(o => ({
+      timestamp: o.timestamp,
+      price: o.price,
+      amount: o.amount,
+    })),
+    buffer(sec$),
+    map(s1ReduceFn),
+    share(),
+  )
+
+  const p$ = { s1$ }
+
+  Object.entries(periods).forEach(([p, e]) => {
+    p$[p] = s1$.pipe(
+      buffer(
+        sec$.pipe(
+          map(boundary(e.seconds)),
+          distinctUntilChanged(),
+        ),
+      ),
+      map(ohlcsReduceFn),
+      skip(1),
+      tap(debugName(`ohlc_${p}`)),
     )
   })
 
-  let intervals = {
-    s1$: concat(
-      history$.pipe(
-        groupBy(trade => Math.floor(trade.ts / 1000) * 1000),
-        mergeMap(group => group.pipe(toArray())),
-        map(s1ReduceFn),
-      ),
-      live$.pipe(
-        buffer(sec$),
-        map(s1ReduceFn),
-      ),
-    ).pipe(
-      tap(debugNameObj('ohlc-s1', instrument)),
-      share(),
-    ),
-  }
-
-  const ms = new Date().getTime()
-
-  for (let period in periods) {
-    const { seconds, prev } = periods[period]
-    const secondsPrev = periods[prev] ? periods[prev].seconds : 1
-
-    const prev$ = intervals[prev]
-
-    const currTS = Math.floor(ms / 1000 / seconds) * 1000 * seconds
-    const nextTS = Math.ceil(ms / 1000 / seconds) * 1000 * seconds
-
-    const bufferNext = seconds / secondsPrev
-    const bufferCurr = Math.ceil(
-      (seconds * 1000 - (ms % (seconds * 1000))) / secondsPrev / 1000,
-    )
-
-    intervals[period] = merge(
-      // historical intervals that happened before current ongoing interval
-      prev$.pipe(
-        takeWhile(ohlc => ohlc.t < currTS),
-        groupBy(ohlc => Math.floor(ohlc.t / 1000 / seconds) * 1000 * seconds),
-        mergeMap(group => group.pipe(toArray())),
-        map(ohlcs => ohlcsReduceFn(ohlcs, seconds)),
-      ),
-      // inject current ongoing interval
-      prev$.pipe(
-        skipWhile(ohlc => ohlc.t < currTS),
-        takeWhile(ohlc => ohlc.t < nextTS),
-        bufferCount(bufferCurr),
-        map(ohlcs => ohlcsReduceFn(ohlcs, seconds)),
-      ),
-      // inject future regular intervals after current ongoing interval has finished
-      prev$.pipe(
-        skipWhile(ohlc => ohlc.t < nextTS),
-        bufferCount(bufferNext),
-        map(ohlcs => ohlcsReduceFn(ohlcs, seconds)),
-      ),
-    ).pipe(
-      tap(debugNameObj(`ohlc-${period}`.slice(0, -1), instrument)),
-      share(),
-    )
-  }
-
-  return {
-    ...intervals,
-  }
+  return p$
 }

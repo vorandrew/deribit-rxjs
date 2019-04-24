@@ -28,9 +28,9 @@ export default function history(instrument_name = 'BTC-PERPETUAL', minutes = 5) 
           _.map(one => ({
             amount: one.amount,
             price: one.price,
-            ts: one.timestamp,
+            timestamp: one.timestamp,
           })),
-          _.sortBy('ts'),
+          _.sortBy('timestamp'),
           _.map(o => obs.next(o)),
         )(data.trades)
       } while (start_timestamp)

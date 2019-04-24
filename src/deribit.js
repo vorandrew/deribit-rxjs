@@ -10,7 +10,7 @@ export const read$ = new Subject()
 export const write$ = new Subject()
 
 export const ws = new WS('wss://www.deribit.com/ws/api/v2')
-export const openPromise = new Promise(r => ws.on('open', r))
+export const openPromise = new Promise(r => ws.on('open', () => setTimeout(r, 100)))
 
 let n = new Date().getTime() * 1000
 let access_token
