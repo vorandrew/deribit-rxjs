@@ -78,7 +78,8 @@ index('btc').subscribe(console.log) // 3500
 Quote
 
 ```js
-quote('BTC-PERPETUAL').subscribe(console.log)
+quote('BTC-PERPETUAL').subscribe(console.log) // One instrument
+quote('future', 'ETH').subscribe(console.log) // By kind - ['all', 'future', 'option']
 ```
 
 OHLC
