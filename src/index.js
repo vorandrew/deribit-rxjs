@@ -5,6 +5,12 @@ import orders$ from './orders'
 import trades$ from './trades'
 import positions$ from './positions'
 import index from './indx'
-import { msg as deribit } from './deribit'
+import { msg, read$, openPromise, authedPromise } from './deribit'
 
-export { ohlc, quote, index, positions$, orders$, trades$, sec$, deribit }
+const deribit = {
+  msg,
+  connected: openPromise,
+  authenticated: authedPromise,
+}
+
+export { ohlc, quote, index, positions$, orders$, trades$, sec$, read$, deribit }

@@ -17,58 +17,91 @@ DERIBIT_KEY=key_here        // API Key
 DERIBIT_SECRET=secret_here  // API Secret
 ```
 
-Import
+# Import
 
 ```js
-import { ohlc, price, index, orders$, positions$, trades$, deribit } from 'deribit-rxjs'
+import { ohlc, quote, index, positions$, orders$, trades$, sec$, read$, deribit } from 'deribit-rxjs'
 ```
 
-Deribit Websocket
+# Deribit Websocket
+
+See https://test.deribit.com/apiconsole/v2
+
+Websocket messages observable
+
+```
+read$.subscribe(console.log)
+```
+
+Connected
 
 ```
 deribit.connected
-  .then(() => deribit.action('ping'))
-  .then(pong => console.log(pong))
+  .then(() => deribit.msg({'method': 'public/get_time'}))
+  .then(timestamp => console.log(timestamp))
+```
+
+Authenticated
+
+```
+deribit.authenticated
+  .then(() =>
+    deribit.msg({
+      method: 'private/get_positions',
+      params: { currency: 'BTC' },
+    }),
+  )
+  .then(positions => console.log(positions))
+```
+
+Send message
+
+```
+deribit
+  .msg({'method': 'public/get_time'})
+  .then(timestamp => console.log(timestamp))
+```
+
+
+Seconds (no drift)
+
+```js
+sec$.subscribe(console.log) // 1545007679000
 ```
 
 Index
 
 ```js
-const index('BTC').subscribe(console.log) // 3500
+index('btc').subscribe(console.log) // 3500
 ```
 
-Price
+Quote
 
 ```js
-const price('BTC-PERPETUAL').subscribe(console.log) // One instrument
-const price('futures').subscribe(console.log) //  ['all', 'futures', 'options', 'index', 'any_instrument_name']
+quote('BTC-PERPETUAL').subscribe(console.log)
 ```
 
 OHLC
 
 ```js
-const minutes_of_history_prices = 10
-const { s1$, s5$, s15$, m1$, m15$, m30$, h1$, h4$, d1$ } = ohlc(
-  'BTC-PERPETUAL',
-  minutes_of_history_prices,
-)
+const { s1$, s5$, s15$, m1$, m15$, m30$, h1$, h4$, d1$ } = ohlc('BTC-PERPETUAL')
 s5$.subscribe(console.log) // { t: 1545007679000, o: 333, h: 555, l: 222, c: 4444, v: 12355 }
 ```
 
 Trades
 
 ```js
-trades$.subscribe(console.log) // See deribit API
+trades$.subscribe(console.log)
 ```
 
 Positions
 
 ```js
-positions$.subscribe(console.log) // See deribit API
+positions$.subscribe(console.log)
 ```
 
 Orders
 
 ```js
-orders$.subscribe(console.log) // See deribit API
+orders$.subscribe(console.log)
 ```
