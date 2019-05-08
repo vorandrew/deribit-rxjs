@@ -49,7 +49,6 @@ export default merge(
     acc[curr] = positions
     return acc
   }, {}),
-  distinctUntilChanged(isEqual),
   map(p => {
     return flatten(
       Object.values(p).map(all =>
@@ -69,6 +68,7 @@ export default merge(
       ),
     )
   }),
+  distinctUntilChanged(isEqual),
   tap(debugName('positions')),
   share(),
 )
