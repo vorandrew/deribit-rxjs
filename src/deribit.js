@@ -1,5 +1,6 @@
 import 'dotenv/config'
 
+import ReconnectingWebSocket from 'reconnecting-websocket'
 import WS from 'ws'
 
 import { Subject } from 'rxjs'
@@ -9,8 +10,13 @@ import { debugName, debugRawName } from './helpers'
 export const read$ = new Subject()
 export const write$ = new Subject()
 
-export const ws = new WS('wss://www.deribit.com/ws/api/v2')
-export const openPromise = new Promise(r => ws.on('open', () => setTimeout(r, 100)))
+export const ws = new ReconnectingWebSocket('wss://www.deribit.com/ws/api/v2', [], {
+  WebSocket: WS,
+})
+
+export const openPromise = new Promise(r =>
+  ws.addEventListener('open', () => setTimeout(r, 100)),
+)
 
 let n = new Date().getTime() * 1000
 let access_token
@@ -40,7 +46,8 @@ function noId(msg) {
   }
 }
 
-ws.on('message', msg => {
+ws.addEventListener('message', e => {
+  const msg = e.data
   const msgJSON = JSON.parse(msg)
 
   if (!msgJSON.id) {
@@ -95,7 +102,7 @@ msg({
   method: 'public/hello',
   params: {
     client_name: 'deribit-rxjs',
-    client_version: '0.1.0',
+    client_version: '2.0.5',
   },
 })
 

@@ -30,6 +30,7 @@
   "dependencies": {
     "debug": "*",
     "lodash": "^4.17.11",
+    "reconnecting-websocket": "^4.1.10",
     "rxjs": "^6.4.0",
     "ws": "^6.2.1"
   },
