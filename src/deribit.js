@@ -81,15 +81,17 @@ export function msg(msg) {
 
       promises[id] = { resolve, reject }
 
-      if (msg.method.startsWith('private')) {
-        msg.params.access_token = access_token
+      const { method, params = {} } = msg
+
+      if (method.startsWith('private')) {
+        params.access_token = access_token
       }
 
       const msgJSON = JSON.stringify({
         jsonrpc: '2.0',
         id,
-        method: msg.method,
-        params: msg.params || {},
+        method,
+        params,
       })
 
       ws.send(msgJSON)
