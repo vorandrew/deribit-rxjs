@@ -32,7 +32,7 @@ export default merge(
   map(orders =>
     orders.filter(
       o =>
-        !['filled', 'rejected', 'cancelled'].includes(o.order_state) ||
+        !['filled', 'rejected', 'cancelled', 'triggered'].includes(o.order_state) ||
         o.last_update_timestamp >= new Date().getTime() - 5000,
     ),
   ),
