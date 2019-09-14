@@ -6,6 +6,7 @@ import trades$ from './trades'
 import positions$ from './positions'
 import index from './indx'
 import { msg, read$, openPromise, authedPromise } from './deribit'
+import { order, edit, cancel, stop } from './order'
 
 const deribit = {
   msg,
@@ -13,4 +14,18 @@ const deribit = {
   authenticated: authedPromise,
 }
 
-export { ohlc, quote, index, positions$, orders$, trades$, sec$, read$, deribit }
+export {
+  ohlc,
+  quote,
+  index,
+  positions$,
+  orders$,
+  trades$,
+  sec$,
+  read$,
+  order,
+  edit,
+  cancel,
+  stop,
+  deribit,
+}

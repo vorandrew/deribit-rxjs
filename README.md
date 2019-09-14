@@ -25,7 +25,7 @@ import { ohlc, quote, index, positions$, orders$, trades$, sec$, read$, deribit 
 
 # Deribit Websocket
 
-See https://test.deribit.com/apiconsole/v2
+See https://www.deribit.com/apiconsole/v2
 
 Websocket messages observable
 
@@ -87,6 +87,17 @@ OHLC
 ```js
 const { s1$, s5$, s15$, m1$, m15$, m30$, h1$, h4$, d1$ } = ohlc('BTC-PERPETUAL')
 s5$.subscribe(console.log) // { t: 1545007679000, o: 333, h: 555, l: 222, c: 4444, v: 12355 }
+```
+
+Order management
+
+```js
+import { order, edit, cancel, stop } from 'deribit-rxjs'
+
+order(opts).subscribe(console.log)
+edit(opts).subscribe(console.log)
+cancel(order_id).subscribe(console.log)
+stop(opts).subscribe(console.log)
 ```
 
 Trades
