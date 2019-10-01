@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { orders$ } from './index'
-import { msg, authedPromise } from './deribit'
+import deribit from './deribit'
 
 jest.setTimeout(10000)
 
@@ -20,8 +20,8 @@ describe('orders', () => {
       done()
     })
 
-    await authedPromise.then(() =>
-      msg({
+    await deribit.authedPromise.then(() =>
+      deribit.msg({
         method: 'private/buy',
         params: {
           instrument_name: 'BTC-PERPETUAL',

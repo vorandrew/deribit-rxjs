@@ -1,4 +1,4 @@
-import { msg, read$ } from './deribit'
+import deribit, { read$ } from './deribit'
 
 import { from } from 'rxjs'
 import {
@@ -68,11 +68,12 @@ const ohlcsReduceFn = (ohlcs, seconds) => {
 }
 
 export default function ohlc(instrument = 'BTC-PERPETUAL') {
-  msg({
-    method: 'public/subscribe',
-    params: { channels: [`trades.${instrument}.100ms`] },
+  deribit.onConnect(() => {
+    deribit.msg({
+      method: 'public/subscribe',
+      params: { channels: [`trades.${instrument}.100ms`] },
+    })
   })
-
   // const history$ = history(instrument, minutes).pipe(
   //   groupBy(trade => Math.floor(trade.timestamp / 1000) * 1000),
   //   mergeMap(group$ => group$.pipe(toArray())),

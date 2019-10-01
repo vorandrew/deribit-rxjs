@@ -1,4 +1,4 @@
-import { msg, authedPromise } from './deribit'
+import deribit from './deribit'
 
 import { from, of } from 'rxjs'
 import { tap } from 'rxjs/operators'
@@ -25,9 +25,9 @@ export function order(opts) {
   }
 
   return from(
-    authedPromise
+    deribit.authedPromise
       .then(() =>
-        msg({
+        deribit.msg({
           method: `private/${buySell}`,
           params: { ...ordr },
         }),
@@ -51,9 +51,9 @@ export function edit(opts) {
   }
 
   return from(
-    authedPromise
+    deribit.authedPromise
       .then(() =>
-        msg({
+        deribit.msg({
           method: 'private/edit',
           params: { ...ordr },
         }),
@@ -71,8 +71,8 @@ export function cancel(order_id) {
   }
 
   return from(
-    authedPromise.then(() =>
-      msg({ method: 'private/cancel', params: { order_id } }).catch(err => {
+    deribit.authedPromise.then(() =>
+      deribit.msg({ method: 'private/cancel', params: { order_id } }).catch(err => {
         err.data ? (err.data.order_id = order_id) : (err.order_id = order_id)
         throw err
       }),

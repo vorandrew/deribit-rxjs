@@ -1,24 +1,30 @@
-import { msg, read$, authedPromise } from './deribit'
-import { from, merge } from 'rxjs'
+import deribit, { read$ } from './deribit'
+import { merge, Subject } from 'rxjs'
 import { share, tap, filter, map, scan } from 'rxjs/operators'
 
 import { debugName } from './helpers'
 
+import Promise from 'bluebird'
+
+import { currencies } from './utils'
+
+const onConnectOrders$ = new Subject()
+
+deribit.onAuth(() => {
+  currencies
+    .then(currs =>
+      Promise.map(currs, currency =>
+        deribit.msg({
+          method: 'private/get_open_orders_by_currency',
+          params: { currency },
+        }),
+      ),
+    )
+    .then(orders => onConnectOrders$.next(orders.flat()))
+})
+
 export default merge(
-  from(
-    authedPromise.then(() =>
-      Promise.all([
-        msg({
-          method: 'private/get_open_orders_by_currency',
-          params: { currency: 'BTC' },
-        }),
-        msg({
-          method: 'private/get_open_orders_by_currency',
-          params: { currency: 'ETH' },
-        }),
-      ]).then(([btc, eth]) => [...btc, ...eth]),
-    ),
-  ),
+  onConnectOrders$,
   read$.pipe(
     filter(
       m => m.method === 'subscription' && m.params.channel === 'user.orders.any.any.raw',

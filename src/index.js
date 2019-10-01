@@ -5,13 +5,13 @@ import orders$ from './orders'
 import trades$ from './trades'
 import positions$ from './positions'
 import index from './indx'
-import { msg, read$, openPromise, authedPromise } from './deribit'
+import deribitObj, { read$ } from './deribit'
 import { order, edit, cancel, stop } from './order'
 
 const deribit = {
-  msg,
-  connected: openPromise,
-  authenticated: authedPromise,
+  msg: deribitObj.msg,
+  connected: deribitObj.connectedPromise,
+  authenticated: deribitObj.authedPromise,
 }
 
 export {

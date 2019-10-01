@@ -1,4 +1,4 @@
-import { msg, openPromise } from './deribit'
+import deribit from './deribit'
 import { Subject } from 'rxjs'
 
 import _ from 'lodash/fp'
@@ -6,12 +6,12 @@ import _ from 'lodash/fp'
 export default function history(instrument_name = 'BTC-PERPETUAL', minutes = 5) {
   const obs = new Subject()
 
-  openPromise
+  deribit.authedPromise
     .then(async () => {
       let start_timestamp = new Date().getTime() - 60 * minutes * 1000
 
       do {
-        const data = await msg({
+        const data = await deribit.msg({
           method: 'public/get_last_trades_by_instrument_and_time',
           params: {
             instrument_name,

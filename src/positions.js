@@ -1,5 +1,5 @@
-import { msg, read$, authedPromise } from './deribit'
-import { from, merge } from 'rxjs'
+import deribit, { read$ } from './deribit'
+import { from, merge, Subject } from 'rxjs'
 import {
   share,
   tap,
@@ -10,31 +10,41 @@ import {
   distinctUntilChanged,
 } from 'rxjs/operators'
 
+import Promise from 'bluebird'
+
 import flatten from 'lodash/flatten'
 import isEqual from 'lodash/isEqual'
 
 import { debugName } from './helpers'
 
+import { currencies } from './utils'
+
+const onConnectPositions$ = new Subject()
+
+deribit.onAuth(() => {
+  currencies
+    .then(currs =>
+      Promise.map(currs, currency =>
+        deribit.msg({
+          method: 'private/get_positions',
+          params: { currency },
+        }),
+      ),
+    )
+    .then(orders => onConnectPositions$.next(orders.flat()))
+})
+
 export default merge(
-  from(
-    authedPromise.then(() =>
-      msg({ method: 'private/get_positions', params: { currency: 'BTC' } }),
-    ),
-  ),
-  from(
-    authedPromise.then(() =>
-      msg({ method: 'private/get_positions', params: { currency: 'ETH' } }),
-    ),
-  ),
+  onConnectPositions$,
   read$.pipe(
     filter(
       m => m.method === 'subscription' && m.params.channel === 'user.trades.any.any.raw',
     ),
     switchMap(m => {
-      const symbol = m.params.data[0].instrument_name.substring(0, 3)
+      const currency = m.params.data[0].instrument_name.substring(0, 3)
       return from(
-        authedPromise.then(() =>
-          msg({ method: 'private/get_positions', params: { currency: symbol } }),
+        deribit.authedPromise.then(() =>
+          deribit.msg({ method: 'private/get_positions', params: { currency } }),
         ),
       )
     }),

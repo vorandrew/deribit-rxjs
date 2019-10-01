@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { trades$ } from './index'
-import { msg, authedPromise } from './deribit'
+import deribit from './deribit'
 
 describe('trades$', () => {
   it('trades$', async done => {
@@ -13,8 +13,8 @@ describe('trades$', () => {
       done()
     })
 
-    await authedPromise.then(() =>
-      msg({
+    await deribit.authedPromise.then(() =>
+      deribit.msg({
         method: 'private/sell',
         params: {
           instrument_name: 'BTC-PERPETUAL',

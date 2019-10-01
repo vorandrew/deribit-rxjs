@@ -1,4 +1,4 @@
-import { msg, read$ } from './deribit'
+import deribit, { read$ } from './deribit'
 import { share, tap, filter, map } from 'rxjs/operators'
 
 import { debugName } from './helpers'
@@ -15,28 +15,30 @@ function getChannels(instrument, currency) {
     payload.params.kind = instrument
   }
 
-  return msg(payload).then(all => all.map(o => `quote.${o.instrument_name}`))
+  return deribit.msg(payload).then(all => all.map(o => `quote.${o.instrument_name}`))
 }
 
 export default function quote(instrument, curr = 'BTC') {
   let channels = []
 
-  if (special.includes(instrument)) {
-    getChannels(instrument, curr).then(chs => {
-      channels = chs
-      msg({ method: 'public/subscribe', params: { channels } })
-    })
-
-    setInterval(function() {
+  deribit.onConnect(() => {
+    if (special.includes(instrument)) {
       getChannels(instrument, curr).then(chs => {
         channels = chs
-        msg({ method: 'public/subscribe', params: { channels } })
+        deribit.msg({ method: 'public/subscribe', params: { channels } })
       })
-    }, 1000 * 60 * 15)
-  } else {
-    channels = [`quote.${instrument}`]
-    msg({ method: 'public/subscribe', params: { channels } })
-  }
+
+      setInterval(function() {
+        getChannels(instrument, curr).then(chs => {
+          channels = chs
+          deribit.msg({ method: 'public/subscribe', params: { channels } })
+        })
+      }, 1000 * 60 * 15)
+    } else {
+      channels = [`quote.${instrument}`]
+      deribit.msg({ method: 'public/subscribe', params: { channels } })
+    }
+  })
 
   return read$.pipe(
     filter(m => m.method === 'subscription' && channels.includes(m.params.channel)),

@@ -15,6 +15,7 @@
     "@babel/cli": "*",
     "@babel/core": "*",
     "@babel/node": "*",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-env": "*",
     "@babel/register": "*",
     "babel-core": "7.0.0-bridge.0",
@@ -28,6 +29,7 @@
     "nodemon": "^1.18.11"
   },
   "dependencies": {
+    "bluebird": "^3.5.5",
     "debug": "*",
     "lodash": "^4.17.11",
     "reconnecting-websocket": "^4.1.10",
@@ -91,6 +93,14 @@
     }
   },
   "babel": {
+    "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
+    ],
     "presets": [
       [
         "@babel/preset-env",
