@@ -4,6 +4,7 @@
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
+    "pre-build":"rm -rf ./lib",
     "build": "babel -d lib src --minified --ignore '**/*.test.js'",
     "prepare": "yarn build && husky install",
     "lint": "eslint src",
