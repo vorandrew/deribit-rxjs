@@ -1,143 +1,111 @@
-import 'dotenv/config'
+import { of } from 'rxjs'
+import { find, mergeMap, filter } from 'rxjs/operators'
+import ws from './ws'
 
-import ReconnectingWebSocket from 'reconnecting-websocket'
-import WS from 'ws'
-
-import { Subject } from 'rxjs'
-
-import { debugName, debugRawName } from './helpers'
-
-export const read$ = new Subject()
-export const write$ = new Subject()
-
-export const ws = new ReconnectingWebSocket('wss://www.deribit.com/ws/api/v2', [], {
-  WebSocket: WS,
-})
-
-export const openPromise = new Promise(r =>
-  ws.addEventListener('open', () => setTimeout(r, 100)),
-)
-
-let n = new Date().getTime() * 1000
+let n = 1
 let access_token
+let authenticated
 
-const promises = {}
+export const deribit$ = ws()
 
-setInterval(function() {
-  const now = (new Date().getTime - 300) * 1000
-  Object.keys(promises).forEach(id => {
-    if (id < now) {
-      delete promises[id]
-    }
-  })
-}, 300 * 1000)
+const subscribtion = deribit$.subscribe()
 
-function noId(msg) {
-  // debugName('noId')(msg)
-
-  if (msg.method === 'heartbeat') {
-    return ws.send(JSON.stringify({ method: 'public/test' }))
-  } else if (msg.method === 'subscription') {
-    return read$.next(msg)
-  } else if (msg.result && msg.result.version) {
-    return
-  } else {
-    return debugName('error')(msg)
-  }
+export function close() {
+  subscribtion.unsubscribe()
 }
 
-ws.addEventListener('message', e => {
-  const msg = e.data
-  const msgJSON = JSON.parse(msg)
+export function msg(obj, timeout = 3000) {
+  const id = n++
 
-  if (!msgJSON.id) {
-    return noId(msgJSON)
-  }
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(function () {
+      reject('Timeout')
+    }, timeout)
 
-  const { resolve, reject } = promises[msgJSON.id]
-  delete promises[msgJSON.id]
-
-  msgJSON.error ? reject(msgJSON.error) : resolve(msgJSON.result)
-
-  if (msgJSON.error) {
-    const { code, message, data } = msgJSON.error
-
-    const err = new Error(message)
-    err.code = code
-    err.data = data
-
-    reject(err)
-    read$.next(err)
-  } else {
-    resolve(msgJSON.result)
-    read$.next(msgJSON.result)
-  }
-})
-
-export function msg(msg) {
-  return openPromise.then(() => {
-    return new Promise((resolve, reject) => {
-      const id = ++n
-
-      promises[id] = { resolve, reject }
-
-      const { method, params = {} } = msg
-
-      if (method.startsWith('private')) {
-        params.access_token = access_token
-      }
-
-      const msgJSON = JSON.stringify({
-        jsonrpc: '2.0',
-        id,
-        method,
-        params,
-      })
-
-      ws.send(msgJSON)
-      write$.next(msgJSON)
-    })
-  })
-}
-
-msg({
-  method: 'public/hello',
-  params: {
-    client_name: 'deribit-rxjs',
-    client_version: '2.0.5',
-  },
-})
-
-export const authedPromise =
-  process.env.DERIBIT_KEY && process.env.DERIBIT_SECRET
-    ? msg({
-      method: 'public/auth',
-      params: {
-        grant_type: 'client_credentials',
-        client_id: process.env.DERIBIT_KEY,
-        client_secret: process.env.DERIBIT_SECRET,
+    deribit$.pipe(find(val => val.id === id)).subscribe({
+      next: val => {
+        clearTimeout(timer)
+        resolve(val.result)
       },
+      error: reject,
     })
-      .then(msg => (access_token = msg.access_token))
-      .then(() =>
-        msg({
-          method: 'private/subscribe',
-          params: {
-            channels: [
-              'user.trades.any.any.raw',
-              'user.orders.any.any.raw',
-              'user.portfolio.BTC',
-              'user.portfolio.ETH',
-            ],
-          },
-        }),
-      )
-      .catch(err => debugName('error')(err))
-    : Promise.reject(new Error('No key/secret provided'))
 
-msg({
-  method: 'public/set_heartbeat',
-  params: { interval: 30 },
-})
+    if (obj.method.startsWith('private')) {
+      obj.params.access_token = access_token
+    }
 
-read$.subscribe(debugRawName('read'))
+    deribit$.next({
+      ...obj,
+      jsonrpc: '2.0',
+      id,
+    })
+  })
+}
+
+export async function authenticate() {
+  if (authenticated) {
+    return authenticated
+  }
+
+  if (!process.env.DERIBIT_ID || !process.env.DERIBIT_SECRET) {
+    return Promise.reject(new Error('No key/secret provided'))
+  }
+
+  authenticated = msg({
+    method: 'public/auth',
+    params: {
+      grant_type: 'client_credentials',
+      client_id: process.env.DERIBIT_ID,
+      client_secret: process.env.DERIBIT_SECRET,
+    },
+  })
+    .then(msg => (access_token = msg.access_token))
+    .then(() =>
+      msg({
+        method: 'private/subscribe',
+        params: {
+          channels: [
+            'user.trades.any.any.raw',
+            'user.orders.any.any.raw',
+            'user.portfolio.BTC',
+            'user.portfolio.ETH',
+          ],
+        },
+      })
+    )
+
+  return authenticated
+}
+
+export function enable_cancel_on_disconnect(scope = 'account') {
+  return msg({
+    method: 'private/enable_cancel_on_disconnect',
+    params: { scope },
+  })
+}
+
+export function heartbeat(interval = 30) {
+  return msg({
+    method: 'public/set_heartbeat',
+    params: { interval },
+  })
+}
+
+export function hello(client_version = '2.0.5') {
+  return msg({
+    method: 'public/hello',
+    params: {
+      client_name: 'deribit-rxjs',
+      client_version,
+    },
+  })
+}
+
+subscribtion.add(
+  deribit$
+    .pipe(
+      filter(msg => msg.method === 'heartbeat'),
+      mergeMap(() => of(msg({ method: 'public/test' })))
+    )
+    .subscribe()
+)

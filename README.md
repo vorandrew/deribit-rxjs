@@ -20,7 +20,7 @@ DERIBIT_SECRET=secret_here  // API Secret
 # Import
 
 ```js
-import { ohlc, quote, index, positions$, orders$, trades$, sec$, read$, deribit } from 'deribit-rxjs'
+import { quote, index, positions$, orders$, trades$, sec$, read$, deribit } from 'deribit-rxjs'
 ```
 
 # Deribit Websocket
@@ -80,13 +80,6 @@ Quote
 ```js
 quote('BTC-PERPETUAL').subscribe(console.log) // One instrument
 quote('future', 'ETH').subscribe(console.log) // By kind - ['all', 'future', 'option']
-```
-
-OHLC
-
-```js
-const { s1$, s5$, s15$, m1$, m15$, m30$, h1$, h4$, d1$ } = ohlc('BTC-PERPETUAL')
-s5$.subscribe(console.log) // { t: 1545007679000, o: 333, h: 555, l: 222, c: 4444, v: 12355 }
 ```
 
 Order management

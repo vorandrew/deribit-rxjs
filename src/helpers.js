@@ -1,11 +1,6 @@
 import Debug from 'debug'
 
-export const debug = Debug('deribit-rxjs:global')
-
-export const debugRawName = name => {
-  const debug = new Debug(`deribit-rxjs-raw:${name}`)
-  return val => debug(val, new Date())
-}
+export const debug = Debug('deribit-rxjs')
 
 export const debugName = name => {
   const debug = new Debug(`deribit-rxjs:${name}`)

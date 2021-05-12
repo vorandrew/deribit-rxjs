@@ -1,4 +1,4 @@
-import { msg, read$ } from './deribit'
+import { msg, deribit$ } from './deribit'
 import { share, tap, filter, map } from 'rxjs/operators'
 
 import { debugName } from './helpers'
@@ -15,7 +15,7 @@ function getChannels(instrument, currency) {
     payload.params.kind = instrument
   }
 
-  return msg(payload).then(all => all.map(o => `quote.${o.instrument_name}`))
+  return msg(payload).then(all => all.map(o => `ticker.${o.instrument_name}.100ms`))
 }
 
 export default function quote(instrument, curr = 'BTC') {
@@ -27,18 +27,18 @@ export default function quote(instrument, curr = 'BTC') {
       msg({ method: 'public/subscribe', params: { channels } })
     })
 
-    setInterval(function() {
+    setInterval(function () {
       getChannels(instrument, curr).then(chs => {
         channels = chs
         msg({ method: 'public/subscribe', params: { channels } })
       })
     }, 1000 * 60 * 15)
   } else {
-    channels = [`quote.${instrument}`]
+    channels = [`ticker.${instrument}.100ms`]
     msg({ method: 'public/subscribe', params: { channels } })
   }
 
-  return read$.pipe(
+  return deribit$.pipe(
     filter(m => m.method === 'subscription' && channels.includes(m.params.channel)),
     map(o => ({
       instrument_name: o.params.data.instrument_name,
@@ -48,6 +48,6 @@ export default function quote(instrument, curr = 'BTC') {
       ask_amount: o.params.data.best_ask_amount || null,
     })),
     tap(debugName('quote')),
-    share(),
+    share()
   )
 }

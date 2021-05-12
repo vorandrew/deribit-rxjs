@@ -1,4 +1,4 @@
-import { msg, authedPromise } from './deribit'
+import { msg, authenticate } from './deribit'
 
 import { from, of } from 'rxjs'
 import { tap } from 'rxjs/operators'
@@ -21,22 +21,22 @@ export function order(opts) {
   }
 
   if (process.env.DERIBIT_SAFE) {
-    return of({ buySell, ...ordr }).pipe(tap(debugName(`order-${ordr.label}`)))
+    return of({ buySell, ...ordr }).pipe(tap(debugName(`order-${ordr.label}-safe`)))
   }
 
   return from(
-    authedPromise
+    authenticate()
       .then(() =>
         msg({
           method: `private/${buySell}`,
           params: { ...ordr },
-        }),
+        })
       )
       .catch(err => {
         err.data ? (err.data.order = ordr) : (err.order = ordr)
         throw err
-      }),
-  ).pipe(tap(debugName(`order-${ordr.label}-safe`)))
+      })
+  ).pipe(tap(debugName(`order-${ordr.label}`)))
 }
 
 export function edit(opts) {
@@ -51,17 +51,17 @@ export function edit(opts) {
   }
 
   return from(
-    authedPromise
+    authenticate()
       .then(() =>
         msg({
           method: 'private/edit',
           params: { ...ordr },
-        }),
+        })
       )
       .catch(err => {
         err.data ? (err.data.order = ordr) : (err.order = ordr)
         throw err
-      }),
+      })
   ).pipe(tap(debugName('order-edit')))
 }
 
@@ -71,12 +71,12 @@ export function cancel(order_id) {
   }
 
   return from(
-    authedPromise.then(() =>
+    authenticate().then(() =>
       msg({ method: 'private/cancel', params: { order_id } }).catch(err => {
         err.data ? (err.data.order_id = order_id) : (err.order_id = order_id)
         throw err
-      }),
-    ),
+      })
+    )
   ).pipe(tap(debugName('order-cancel')))
 }
 

@@ -5,6 +5,5 @@
   "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
   "prettier.semi": false,
   "prettier.singleQuote": true,
-  "prettier.printWidth": 90,
-  "prettier.trailingComma": "all"
+  "prettier.printWidth": 90
 }

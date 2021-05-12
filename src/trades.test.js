@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { trades$ } from './index'
-import { msg, authedPromise } from './deribit'
+import { msg, authenticate } from './deribit'
 
 describe('trades$', () => {
   it('trades$', async done => {
@@ -13,7 +13,7 @@ describe('trades$', () => {
       done()
     })
 
-    await authedPromise.then(() =>
+    await authenticate().then(() =>
       msg({
         method: 'private/sell',
         params: {
@@ -21,7 +21,7 @@ describe('trades$', () => {
           amount: 10,
           type: 'market',
         },
-      }),
+      })
     )
   })
 })

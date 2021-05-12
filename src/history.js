@@ -1,4 +1,4 @@
-import { msg, openPromise } from './deribit'
+import { msg, authenticate } from './deribit'
 import { Subject } from 'rxjs'
 
 import _ from 'lodash/fp'
@@ -6,7 +6,7 @@ import _ from 'lodash/fp'
 export default function history(instrument_name = 'BTC-PERPETUAL', minutes = 5) {
   const obs = new Subject()
 
-  openPromise
+  authenticate()
     .then(async () => {
       let start_timestamp = new Date().getTime() - 60 * minutes * 1000
 
@@ -31,7 +31,7 @@ export default function history(instrument_name = 'BTC-PERPETUAL', minutes = 5) 
             timestamp: one.timestamp,
           })),
           _.sortBy('timestamp'),
-          _.map(o => obs.next(o)),
+          _.map(o => obs.next(o))
         )(data.trades)
       } while (start_timestamp)
 

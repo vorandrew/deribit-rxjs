@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { positions$ } from './index'
-import { msg, authedPromise } from './deribit'
+import { msg, authenticate } from './deribit'
 
 jest.setTimeout(10000)
 
@@ -15,7 +15,7 @@ describe('positions', () => {
       done()
     })
 
-    await authedPromise.then(() =>
+    await authenticate().then(() =>
       msg({
         method: 'private/buy',
         params: {
@@ -23,7 +23,7 @@ describe('positions', () => {
           amount: 10,
           type: 'market',
         },
-      }),
+      })
     )
   })
 })

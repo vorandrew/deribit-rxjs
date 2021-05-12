@@ -1,4 +1,4 @@
-import { msg, read$ } from './deribit'
+import { msg, deribit$ } from './deribit'
 import { share, tap, filter, map, distinctUntilChanged } from 'rxjs/operators'
 
 import { debugName } from './helpers'
@@ -9,17 +9,17 @@ export default function index(curr = 'btc') {
   msg({
     method: 'public/subscribe',
     params: { channels: [`deribit_price_index.${curr}_usd`] },
-  })
+  }).catch(err => console.error(err))
 
-  return read$.pipe(
+  return deribit$.pipe(
     filter(
       m =>
         m.method === 'subscription' &&
-        m.params.channel === `deribit_price_index.${curr}_usd`,
+        m.params.channel === `deribit_price_index.${curr}_usd`
     ),
     map(o => o.params.data.price),
     distinctUntilChanged(),
     tap(debugName('index')),
-    share(),
+    share()
   )
 }

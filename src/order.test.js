@@ -4,7 +4,7 @@ import { order, cancel, edit, stop } from './index'
 jest.setTimeout(10000)
 
 describe('order', () => {
-  it('order', async done => {
+  it('order', done => {
     order({
       instrument_name: 'BTC-PERPETUAL',
       amount: 10,
@@ -16,11 +16,11 @@ describe('order', () => {
     })
   })
 
-  it('stop', async done => {
+  it('stop', done => {
     stop({
       instrument_name: 'BTC-PERPETUAL',
-      amount: -10,
-      price: 2000,
+      amount: 10,
+      price: 72000,
     }).subscribe(order => {
       expect(order.order).toHaveProperty('order_type', 'stop_market')
       expect(order.order).toHaveProperty('trigger', 'mark_price')
@@ -29,21 +29,35 @@ describe('order', () => {
   })
 
   it('edit', async done => {
-    edit({
-      order_id: 14691759392,
-      amount: 20,
-      price: 2100,
+    order({
+      instrument_name: 'BTC-PERPETUAL',
+      amount: 10,
+      price: 2000,
     }).subscribe(order => {
-      expect(order.order).toHaveProperty('amount', 20)
-      expect(order.order).toHaveProperty('price', 2100)
-      done()
+      const order_id = order.order.order_id
+      edit({
+        order_id,
+        amount: 20,
+        price: 2100,
+      }).subscribe(order => {
+        expect(order.order).toHaveProperty('amount', 20)
+        expect(order.order).toHaveProperty('price', 2100)
+        done()
+      })
     })
   })
 
-  it('cancel', async done => {
-    cancel(14691819497).subscribe(order => {
-      expect(order).toHaveProperty('order_state', 'cancelled')
-      done()
+  it('cancel', done => {
+    order({
+      instrument_name: 'BTC-PERPETUAL',
+      amount: 10,
+      price: 2000,
+    }).subscribe(order => {
+      const order_id = order.order.order_id
+      cancel(order_id).subscribe(order => {
+        expect(order).toHaveProperty('order_state', 'cancelled')
+        done()
+      })
     })
   })
 })

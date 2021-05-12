@@ -1,11 +1,11 @@
-import { msg, read$, authedPromise } from './deribit'
+import { msg, deribit$, authenticate } from './deribit'
 import { from, merge } from 'rxjs'
 import {
   share,
   tap,
   filter,
   map,
-  switchMap,
+  exhaustMap,
   scan,
   distinctUntilChanged,
 } from 'rxjs/operators'
@@ -17,28 +17,28 @@ import { debugName } from './helpers'
 
 export default merge(
   from(
-    authedPromise.then(() =>
-      msg({ method: 'private/get_positions', params: { currency: 'BTC' } }),
-    ),
+    authenticate().then(() =>
+      msg({ method: 'private/get_positions', params: { currency: 'BTC' } })
+    )
   ),
   from(
-    authedPromise.then(() =>
-      msg({ method: 'private/get_positions', params: { currency: 'ETH' } }),
-    ),
+    authenticate().then(() =>
+      msg({ method: 'private/get_positions', params: { currency: 'ETH' } })
+    )
   ),
-  read$.pipe(
+  deribit$.pipe(
     filter(
-      m => m.method === 'subscription' && m.params.channel === 'user.trades.any.any.raw',
+      m => m.method === 'subscription' && m.params.channel === 'user.trades.any.any.raw'
     ),
-    switchMap(m => {
+    exhaustMap(m => {
       const symbol = m.params.data[0].instrument_name.substring(0, 3)
       return from(
-        authedPromise.then(() =>
-          msg({ method: 'private/get_positions', params: { currency: symbol } }),
-        ),
+        authenticate().then(() =>
+          msg({ method: 'private/get_positions', params: { currency: symbol } })
+        )
       )
-    }),
-  ),
+    })
+  )
 ).pipe(
   scan((acc, positions) => {
     if (positions.length === 0) {
@@ -61,14 +61,14 @@ export default merge(
               currency: instrument_name.substring(0, 3),
               instrument_name,
               size,
-              average_price_usd,
+              average_price_usd: average_price_usd ? average_price_usd : average_price,
               average_price,
             }
-          }),
-      ),
+          })
+      )
     )
   }),
   distinctUntilChanged(isEqual),
   tap(debugName('positions')),
-  share(),
+  share()
 )
