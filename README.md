@@ -30,21 +30,13 @@ See https://www.deribit.com/apiconsole/v2
 Websocket messages observable
 
 ```
-read$.subscribe(console.log)
+deribit$.subscribe(console.log)
 ```
 
-Connected
+Authenticate
 
 ```
-deribit.connected
-  .then(() => deribit.msg({'method': 'public/get_time'}))
-  .then(timestamp => console.log(timestamp))
-```
-
-Authenticated
-
-```
-deribit.authenticated
+deribit.authenticate()
   .then(() =>
     deribit.msg({
       method: 'private/get_positions',
