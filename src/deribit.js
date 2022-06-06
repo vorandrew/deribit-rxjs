@@ -69,6 +69,8 @@ export async function authenticate() {
             'user.orders.any.any.raw',
             'user.portfolio.BTC',
             'user.portfolio.ETH',
+            'user.portfolio.USDC',
+            'user.portfolio.SOL',
           ],
         },
       })

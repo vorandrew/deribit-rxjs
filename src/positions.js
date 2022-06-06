@@ -26,6 +26,16 @@ export default merge(
       msg({ method: 'private/get_positions', params: { currency: 'ETH' } })
     )
   ),
+  from(
+    authenticate().then(() =>
+      msg({ method: 'private/get_positions', params: { currency: 'USDC' } })
+    )
+  ),
+  from(
+    authenticate().then(() =>
+      msg({ method: 'private/get_positions', params: { currency: 'SOL' } })
+    )
+  ),
   deribit$.pipe(
     filter(
       m => m.method === 'subscription' && m.params.channel === 'user.trades.any.any.raw'

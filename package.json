@@ -1,6 +1,6 @@
 {
   "name": "deribit-rxjs",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
